@@ -109,7 +109,14 @@
     /// The person chose Installation → Set Up Recovery Password….
     public private(set) var showsRecoveryAccountSetup = false
     public var canSetUpRecoveryAccount: Bool {
-      guard case .existingInstallRefused = phase else { return false }
+      let canOpenFromPhase: Bool
+      switch phase {
+      case .existingInstallRefused, .welcome:
+        canOpenFromPhase = true
+      default:
+        canOpenFromPhase = false
+      }
+      guard canOpenFromPhase else { return false }
       return recoveryAccountDeferred && !showsRecoveryAccountSetup && canOpenRemoval
     }
     public func setUpRecoveryAccount() {
@@ -263,7 +270,6 @@
         }
         let recoveryNeedsAction =
           !recoveryAccountChoices.isEmpty
-          || (recoveryAccount?.target != nil && recoveryAccount?.accountDeferred == true)
         if !host.existingInstalls.isEmpty || recoveryNeedsAction {
           // Replace-only inventories are refused before anything is fetched;
           // inventories with separate space omit this list and continue.

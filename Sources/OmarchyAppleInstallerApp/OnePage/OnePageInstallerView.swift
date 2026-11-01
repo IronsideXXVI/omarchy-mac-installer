@@ -187,12 +187,16 @@ struct OnePageInstallerView: View {
       )
 
     case .welcome:
-      Text(PlainLanguage.checkSubheadline)
-        .font(OmarchyTheme.body)
-        .foregroundStyle(OmarchyTheme.secondaryText)
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: .infinity)
-        .padding(.top, 6)
+      if session.showsRecoveryAccountSetup, let handoff = pendingRecoveryHandoff {
+        recoveryPanel(handoff)
+      } else {
+        Text(PlainLanguage.checkSubheadline)
+          .font(OmarchyTheme.body)
+          .foregroundStyle(OmarchyTheme.secondaryText)
+          .multilineTextAlignment(.center)
+          .frame(maxWidth: .infinity)
+          .padding(.top, 6)
+      }
 
     case .existingInstallRefused:
       if let handoff = pendingRecoveryHandoff {
@@ -250,7 +254,11 @@ struct OnePageInstallerView: View {
       InstallPanel(progress: progress)
 
     case .awaitingRecovery(let handoff):
-      recoveryPanel(handoff)
+      if session.needsRecoveryAccountChoice {
+        recoveryAccountChoicePanel()
+      } else {
+        recoveryPanel(handoff)
+      }
 
     case .done(let completion):
       donePanel(completion)
@@ -280,10 +288,21 @@ struct OnePageInstallerView: View {
         .disabled(session.isBusy)
 
     case .welcome:
-      Button(PlainLanguage.checkContinue) { Task { await session.continueToPlan() } }
-        .omarchyPrimaryButton()
-        .disabled(session.isBusy)
-        .keyboardShortcut(.defaultAction)
+      if session.showsRecoveryAccountSetup, pendingRecoveryHandoff != nil {
+        Button(PlainLanguage.cancel) {
+          shutdownFailure = nil
+          session.cancelRecoveryAccountSetup()
+        }
+        .omarchySecondaryButton()
+        .disabled(preparingShutdown)
+        .keyboardShortcut(.cancelAction)
+        shutDownButton
+      } else {
+        Button(PlainLanguage.checkContinue) { Task { await session.continueToPlan() } }
+          .omarchyPrimaryButton()
+          .disabled(session.isBusy)
+          .keyboardShortcut(.defaultAction)
+      }
 
     case .existingInstallRefused:
       if pendingRecoveryHandoff != nil {
@@ -331,7 +350,9 @@ struct OnePageInstallerView: View {
         .foregroundStyle(OmarchyTheme.accent)
 
     case .awaitingRecovery:
-      shutDownButton
+      if !session.needsRecoveryAccountChoice {
+        shutDownButton
+      }
 
     case .done:
       Button("Close") { NSApplication.shared.terminate(nil) }
@@ -437,28 +458,7 @@ struct OnePageInstallerView: View {
   private func existingInstallRefusedPanel() -> some View {
     Panel {
       if session.needsRecoveryAccountChoice {
-        Text("Choose the installation to update")
-          .font(OmarchyTheme.heading)
-        Text("More than one Omarchy installation is waiting for a recovery password.")
-          .font(OmarchyTheme.body)
-          .foregroundStyle(OmarchyTheme.secondaryText)
-        ForEach(session.recoveryAccountChoices) { choice in
-          Button {
-            Task {
-              try? await session.chooseRecoveryAccount(binding: choice.binding)
-            }
-          } label: {
-            HStack {
-              Text(choice.target.volumeName)
-              Spacer()
-              Text(String(choice.target.systemUUID.prefix(8)))
-                .font(OmarchyTheme.technical)
-                .foregroundStyle(OmarchyTheme.secondaryText)
-            }
-          }
-          .buttonStyle(.bordered)
-          .disabled(session.isBusy)
-        }
+        recoveryAccountChoiceContent()
       } else {
         Text(PlainLanguage.existingInstallHeadline)
           .font(OmarchyTheme.heading)
@@ -481,6 +481,37 @@ struct OnePageInstallerView: View {
           .fixedSize(horizontal: false, vertical: true)
           .padding(.top, 4)
         }
+      }
+    }
+  }
+
+  private func recoveryAccountChoicePanel() -> some View {
+    Panel { recoveryAccountChoiceContent() }
+  }
+
+  private func recoveryAccountChoiceContent() -> some View {
+    VStack(alignment: .leading, spacing: 10) {
+      Text("Choose the installation to update")
+        .font(OmarchyTheme.heading)
+      Text("More than one Omarchy installation is waiting for a recovery password.")
+        .font(OmarchyTheme.body)
+        .foregroundStyle(OmarchyTheme.secondaryText)
+      ForEach(session.recoveryAccountChoices) { choice in
+        Button {
+          Task {
+            try? await session.chooseRecoveryAccount(binding: choice.binding)
+          }
+        } label: {
+          HStack {
+            Text(choice.target.volumeName)
+            Spacer()
+            Text(String(choice.target.systemUUID.prefix(8)))
+              .font(OmarchyTheme.technical)
+              .foregroundStyle(OmarchyTheme.secondaryText)
+          }
+        }
+        .buttonStyle(.bordered)
+        .disabled(session.isBusy)
       }
     }
   }

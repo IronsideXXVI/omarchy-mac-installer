@@ -173,6 +173,18 @@ class RecoveryTests(unittest.TestCase):
         self.assertEqual((self.esp / "m1n1/aura-stage2.pkg").read_bytes(), b"macho stage2")
         self.assertEqual((self.esp / "m1n1/nv-config").read_bytes(), b"x1n1.nv2=0\n")
 
+    def test_macho_mode_keeps_the_raw_stage1_repair_baseline_separate(self):
+        raw = b"raw Neo stage 1"
+        self.boot.write_bytes(b"installed Mach-O stage 1")
+        macho = self.esp / "macho"
+        macho.mkdir()
+        (macho / "aura-boot.macho").write_bytes(b"macho stage 1")
+        (macho / "aura-stage2.pkg").write_bytes(b"macho stage 2")
+        result = recovery.stage(self.installer, ESP, str(self.esp), run=self.fake_run, raw_stage1=raw)
+        payloads = self.system / recovery.INSTALL_DATA_DIRECTORY / "AuraPayloads"
+        self.assertEqual((payloads / "raw/aura-raw.bin").read_bytes(), b"raw Neo stage 1")
+        self.assertEqual(result["configuration"]["bootMode"], "macho")
+
     def test_stages_nv2_off_config_when_macho_bundle_omits_one(self):
         macho = self.esp / "macho"
         macho.mkdir()

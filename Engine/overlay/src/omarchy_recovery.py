@@ -325,7 +325,8 @@ def _optional_payload(path, maximum=256 << 20):
 
 def stage(installer, esp_uuid, esp_root, app_source=None,
           manifest_path=None, run=subprocess.run, source_os=None,
-          requirement=None, authorized_owner=None, expected_bootstrap=None):
+          requirement=None, authorized_owner=None, expected_bootstrap=None,
+          raw_stage1=None):
     """Called after OS/ESP installation and common stage-1 target patching.
 
     Preserve upstream's Finish Installation resource paths for resume checks;
@@ -338,7 +339,12 @@ def stage(installer, esp_uuid, esp_root, app_source=None,
     template = validate_source(app_source, manifest_path, run, requirement=requirement)
     system = Path(installer.osi.system)
     esp_root = Path(esp_root)
-    stage1 = _payload(installer.boot_obj_path)
+    if raw_stage1 is None:
+        stage1 = _payload(installer.boot_obj_path)
+    else:
+        if not isinstance(raw_stage1, bytes) or not 0 < len(raw_stage1) <= 256 << 20:
+            raise RecoveryError("finalized raw Stage 1 has an invalid size")
+        stage1 = raw_stage1
     stage2 = _payload(esp_root / STAGE2_PATH)
     macho_stage1 = _optional_payload(esp_root / MACHO_STAGE1_PATH)
     macho_stage2 = _optional_payload(esp_root / MACHO_STAGE2_PATH)
