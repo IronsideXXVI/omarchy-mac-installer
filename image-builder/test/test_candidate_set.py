@@ -274,6 +274,11 @@ class CandidateSetTest(unittest.TestCase):
         self.assertEqual(summary["packages"][next(i for i, p in enumerate(summary["packages"])
                                                     if p["name"] == "m1n1-aurora")]["name"],
                          "m1n1-aurora")
+        # Each snapshot uses an exclusive output directory. Retire the
+        # successful baseline before constructing the partial-bundle cases.
+        if (self.work / "output").exists():
+            (self.work / "output").chmod(0o700)
+            shutil.rmtree(self.work / "output")
         for missing in ("aura-boot.macho", "aura-stage2.pkg", "nv-config"):
             partial = fixtures.default_contents()
             partial["m1n1-aurora"].update({
