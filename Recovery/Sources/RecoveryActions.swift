@@ -827,7 +827,10 @@ extension RecoveryActions {
         throw RecoveryFailure(
           message: "This native bundle does not provide an NV configuration path.")
       }
-      let target = try esp().appendingPathComponent(path)
+      // Validate every ESP path component before reading or replacing the
+      // user-controlled NV2 switch. This keeps the command bound to the
+      // authenticated manifest path even when an ESP contains a symlink.
+      let target = try RecoveryBaseline.path(path, beneath: esp())
       let enabled = arguments[1] == "on"
       let previous = try Data(contentsOf: target)
       try check(
