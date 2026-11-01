@@ -172,7 +172,7 @@
       {
         "path": "overlay/src/omarchy_asahi.py",
         "destination": "src/omarchy_asahi.py",
-        "sha256": "57333e0e8b92c264e11a374ec757e974b8ef4a1f67fbfbeb5511f4b952695f0e"
+        "sha256": "691f4130575c93cf6bfffab3310a97b9bbaedbb7b4b77e020c3130ef4c669381"
       },
       {
         "path": "overlay/src/omarchy_contract.py",
@@ -207,7 +207,7 @@
       {
         "path": "overlay/tests/test_omarchy_asahi.py",
         "destination": "tests/test_omarchy_asahi.py",
-        "sha256": "816f33146819c869792c012ccd422077daa291d56b506d6c41e892678a75c65b"
+        "sha256": "b9ce7ccefe656c7ac5bb919c0af5f721a08d245e86d7f74b1ae7b4f3ab0d37f6"
       },
       {
         "path": "overlay/tests/test_omarchy_contract.py",
@@ -307,7 +307,7 @@
       {
         "path": "overlay/src/omarchy_recovery.py",
         "destination": "src/omarchy_recovery.py",
-        "sha256": "fb30304e675ebbc14cbcaa1851964510fdcac42dab81a385842b90da8ee100eb"
+        "sha256": "559ea8bc9f458d4bc486cb3c8a71f034a415695daec37e7c00d02cfba51a579b"
       },
       {
         "path": "overlay/src/omarchy_apple_aea.py",
@@ -332,7 +332,7 @@
       {
         "path": "overlay/tests/test_omarchy_recovery.py",
         "destination": "tests/test_omarchy_recovery.py",
-        "sha256": "73dd8cf4073dc488fa770600bd6e0a942f8a0247f227bf8bbe00b6b610600e7c"
+        "sha256": "f190e58d390b016052b66075c5aaf053ab5dbdadc43092b24671f7177fd059e1"
       }
     ]
   },
