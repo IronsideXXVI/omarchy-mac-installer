@@ -436,7 +436,31 @@ struct OnePageInstallerView: View {
 
   private func existingInstallRefusedPanel() -> some View {
     Panel {
-      Text(PlainLanguage.existingInstallHeadline)
+      if session.needsRecoveryAccountChoice {
+        Text("Choose the installation to update")
+          .font(OmarchyTheme.heading)
+        Text("More than one Omarchy installation is waiting for a recovery password.")
+          .font(OmarchyTheme.body)
+          .foregroundStyle(OmarchyTheme.secondaryText)
+        ForEach(session.recoveryAccountChoices) { choice in
+          Button {
+            Task {
+              try? await session.chooseRecoveryAccount(binding: choice.binding)
+            }
+          } label: {
+            HStack {
+              Text(choice.target.volumeName)
+              Spacer()
+              Text(String(choice.target.systemUUID.prefix(8)))
+                .font(OmarchyTheme.technical)
+                .foregroundStyle(OmarchyTheme.secondaryText)
+            }
+          }
+          .buttonStyle(.bordered)
+          .disabled(session.isBusy)
+        }
+      } else {
+        Text(PlainLanguage.existingInstallHeadline)
         .font(OmarchyTheme.heading)
         .fixedSize(horizontal: false, vertical: true)
         .padding(.vertical, 2)
@@ -446,15 +470,16 @@ struct OnePageInstallerView: View {
       .font(OmarchyTheme.body)
       .foregroundStyle(OmarchyTheme.secondaryText)
       .fixedSize(horizontal: false, vertical: true)
-      if session.recoveryAccountDeferred {
-        Label(
-          session.recoveryAccountStarted
-            ? PlainLanguage.recoveryAccountStartedNote : PlainLanguage.recoveryAccountDeferredNote,
-          systemImage: "info.circle"
-        )
-        .omarchyHelpText()
-        .fixedSize(horizontal: false, vertical: true)
-        .padding(.top, 4)
+        if session.recoveryAccountDeferred {
+          Label(
+            session.recoveryAccountStarted
+              ? PlainLanguage.recoveryAccountStartedNote : PlainLanguage.recoveryAccountDeferredNote,
+            systemImage: "info.circle"
+          )
+          .omarchyHelpText()
+          .fixedSize(horizontal: false, vertical: true)
+          .padding(.top, 4)
+        }
       }
     }
   }

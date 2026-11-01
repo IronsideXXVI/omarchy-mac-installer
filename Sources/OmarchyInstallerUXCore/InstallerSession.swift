@@ -39,6 +39,7 @@
   public final class InstallerSession {
     public private(set) var phase: InstallerSessionPhase = .inspecting
     public private(set) var recoveryAccount: RecoveryAccountReply?
+    public private(set) var recoveryAccountChoices: [RecoveryAccountChoice] = []
 
     /// Live per-artifact download progress keyed by role, published from the
     /// stager's handler after a main-actor hop.
@@ -95,6 +96,7 @@
     /// Recovery finished this installation; only the optional recovery
     /// account was skipped, so it is installed rather than waiting.
     public var recoveryAccountDeferred: Bool { recoveryAccount?.accountDeferred == true }
+    public var needsRecoveryAccountChoice: Bool { !recoveryAccountChoices.isEmpty }
     /// The skipped account was started in Recovery but its ownership was never
     /// finalized, so Recovery resumes it rather than offering a new one.
     /// Finalizing clears the deferral, so a finalized record that is still
@@ -244,19 +246,28 @@
       do {
         let host = try await environment.inspect()
         recoveryAccount = nil
-        if !host.existingInstalls.isEmpty {
+        recoveryAccountChoices = []
+        // Account handoffs belong to an already completed installation, not
+        // to the allocation choice.  A replace candidate can coexist with a
+        // free/resize candidate, so `existingInstalls` is intentionally empty
+        // in that case; still discover a deferred Recovery account before
+        // deciding which page to show.
+        if host.supported && !environment.installationBlocked {
+          do {
+            let reply = try await environment.inspectRecoveryAccount(binding: nil)
+            recoveryAccount = reply
+            recoveryAccountChoices = reply?.choices ?? []
+          } catch {
+            recoveryAccount = nil
+          }
+        }
+        let recoveryNeedsAction = !recoveryAccountChoices.isEmpty
+          || (recoveryAccount?.target != nil && recoveryAccount?.accountDeferred != false)
+        if !host.existingInstalls.isEmpty || recoveryNeedsAction {
           // Replace-only inventories are refused before anything is fetched;
           // inventories with separate space omit this list and continue.
           lastHost = host
           phase = .existingInstallRefused(host: host)
-          if host.supported, !environment.installationBlocked {
-            // Optional handoff records must not hide a still-removable install.
-            do {
-              recoveryAccount = try await environment.inspectRecoveryAccount()
-            } catch {
-              recoveryAccount = nil
-            }
-          }
         } else if host.supported, !environment.installationBlocked,
           let shortfall = host.spaceShortfall
         {
@@ -781,6 +792,22 @@
         ticket: ticket, username: username, password: password)
     }
 
+    /// Select one completed installation before creating a Recovery account.
+    /// The helper binds the follow-up ticket to this journal identity and
+    /// rechecks the target on every subsequent operation.
+    public func chooseRecoveryAccount(binding: String) async throws {
+      guard !isBusy, recoveryAccountChoices.contains(where: { $0.binding == binding }) else { return }
+      isBusy = true
+      defer { isBusy = false }
+      guard let reply = try await environment.inspectRecoveryAccount(binding: binding),
+        reply.target != nil, reply.ticket != nil
+      else {
+        throw AccountSetupFailure("That installation is no longer available. Inspect it again.")
+      }
+      recoveryAccount = reply
+      recoveryAccountChoices = []
+    }
+
     public func finalizeRecoveryAccount(password: Data) async throws {
       guard !isBusy, let ticket = recoveryAccount?.ticket else { return }
       isBusy = true
@@ -798,7 +825,8 @@
       isBusy = true
       defer { isBusy = false }
       let originalTarget = recoveryAccount?.target
-      guard let refreshed = try await environment.inspectRecoveryAccount(),
+      guard recoveryAccountChoices.isEmpty,
+        let refreshed = try await environment.inspectRecoveryAccount(binding: nil),
         let target = refreshed.target, let ticket = refreshed.ticket
       else {
         throw AccountSetupFailure(
@@ -830,7 +858,7 @@
             return
           }
           do {
-            guard let found = try await environment.inspectRecoveryAccount(),
+            guard let found = try await environment.inspectRecoveryAccount(binding: nil),
               found.target != nil, found.ticket != nil
             else {
               throw AccountSetupFailure(
@@ -838,6 +866,7 @@
               )
             }
             recoveryAccount = found
+            recoveryAccountChoices = found.choices ?? []
             phase = .awaitingRecovery(handoff)
           } catch {
             recoveryAccount = nil

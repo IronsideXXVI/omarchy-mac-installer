@@ -780,9 +780,36 @@ extension RecoveryActions {
         manifest: m, root: payloadRoot())
       files[path] = bytes
       let destination = try esp()
+      var auxiliaryPaths = Set<String>()
+      if mode == .macho {
+        // The NV2 switch is intentionally user-controlled.  Repair must put
+        // back a missing or malformed config, while retaining a valid choice
+        // made with `aurora-nv2 on|off`.
+        guard let modes = m["modes"] as? [String: [String: Any]],
+          let nvPath = modes["macho"]?["nvConfigPath"] as? String,
+          relative(nvPath)
+        else {
+          throw RecoveryFailure(
+            message: "This native bundle does not provide an NV configuration path.")
+        }
+        let baselineNV = try asset("macho/nv-config", manifest: m)
+        let off = Data("x1n1.nv2=0\n".utf8)
+        let on = Data("x1n1.nv2=1\n".utf8)
+        check(baselineNV == off || baselineNV == on,
+              "The recovery NV configuration is invalid.")
+        let nvTarget = try RecoveryBaseline.path(nvPath, beneath: destination)
+        let current = FileManager.default.fileExists(atPath: nvTarget.path)
+          ? try RecoveryBaseline.read(nvTarget, maximum: 4096)
+          : nil
+        if current != off && current != on {
+          files[nvPath] = baselineNV
+          auxiliaryPaths.insert(nvPath)
+        }
+      }
       let backup = state.appendingPathComponent("recover-" + UUID().uuidString + ".before")
       try RecoveryBaseline.restore(
-        files: files, root: destination, backup: backup, startupStage2Path: path
+        files: files, root: destination, backup: backup, startupStage2Path: path,
+        startupAuxiliaryPaths: auxiliaryPaths
       ) {
         try atomic($0, to: $1)
       }

@@ -1741,7 +1741,7 @@
       if handoffFails { throw AccountSetupFailure("fixture failure") }
       return handoffOverride ?? accountReply!
     }
-    func inspectRecoveryAccount() async throws -> RecoveryAccountReply? {
+    func inspectRecoveryAccount(binding: String? = nil) async throws -> RecoveryAccountReply? {
       accountCalls.append("inspect")
       return accountReply
     }

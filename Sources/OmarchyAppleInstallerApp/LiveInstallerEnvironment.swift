@@ -33,13 +33,14 @@ final class LiveInstallerEnvironment: InstallerEnvironment, @unchecked Sendable 
       helperCodeSigningRequirement: configuration.helperCodeSigningRequirement)
   }
 
-  func inspectRecoveryAccount() async throws -> RecoveryAccountReply? {
+  func inspectRecoveryAccount(binding: String? = nil) async throws -> RecoveryAccountReply? {
     guard refreshHelperStatus().isReady else { return nil }
     // A helper another build installed refuses this app until helper setup
     // replaces it; until then it has no installation to report.
     guard await probeHelperStatus().isCurrent else { return nil }
-    let reply = try await accountClient().recoveryAccount(action: "inspect")
-    return reply.target == nil ? nil : reply
+    let reply = try await accountClient().recoveryAccount(
+      action: "inspect", ticket: binding ?? "")
+    return reply.target == nil && (reply.choices?.isEmpty ?? true) ? nil : reply
   }
 
   func prepareRecoveryHandoff(ticket: String) async throws -> RecoveryAccountReply {
