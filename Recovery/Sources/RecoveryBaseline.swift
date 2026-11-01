@@ -109,9 +109,10 @@ enum RecoveryBaseline {
   // attempted file in rollback because a writer can fail after replacing it.
   static func restore(
     files: [String: Data], root: URL, backup: URL,
+    startupStage2Path: String = RecoveryBaseline.stage2Path,
     write: (Data, URL) throws -> Void
   ) throws {
-    let required = Set([stage2Path] + vendorPaths)
+    let required = Set([startupStage2Path] + vendorPaths)
     let names = files.keys.sorted()
     guard required.isSubset(of: Set(names)),
       Set(names).isSubset(of: required.union([optionalVendorPath]))

@@ -8,8 +8,8 @@
     case inspecting
     case unsupported(FailureDisplay)
     case welcome(HostDisplay)
-    /// Omarchy is already on this Mac. The installer never replaces or adds
-    /// to an existing install; this is a terminal page with a Close button.
+    /// No separate free/resizable extent can hold another install, so the
+    /// existing-install page is terminal until the owner removes one.
     case existingInstallRefused(host: HostDisplay)
     case preparingPlan(AssetProgressUpdate)
     /// Everything is downloaded and verified; the plan waits for the person to
@@ -245,7 +245,8 @@
         let host = try await environment.inspect()
         recoveryAccount = nil
         if !host.existingInstalls.isEmpty {
-          // Refuse before anything is fetched: no catalog, no download.
+          // Replace-only inventories are refused before anything is fetched;
+          // inventories with separate space omit this list and continue.
           lastHost = host
           phase = .existingInstallRefused(host: host)
           if host.supported, !environment.installationBlocked {

@@ -141,7 +141,7 @@
     }
   },
   "downstream_overlay": {
-    "version": "v0.9.2-omarchy.20261022.31425f17fb9b",
+    "version": "v0.9.2-omarchy.20261101.85d5ac15bdff",
     "capability": "candidate_bound_full_os_stage_one_authenticated_recovery",
     "minimum_app_version": "2.3.0",
     "engine_modes": [
@@ -307,7 +307,7 @@
       {
         "path": "overlay/src/omarchy_recovery.py",
         "destination": "src/omarchy_recovery.py",
-        "sha256": "eaec971ea4791256647e4205893c0df9d48067a77360410c7e43547bc8316b85"
+        "sha256": "fb30304e675ebbc14cbcaa1851964510fdcac42dab81a385842b90da8ee100eb"
       },
       {
         "path": "overlay/src/omarchy_apple_aea.py",
@@ -332,7 +332,7 @@
       {
         "path": "overlay/tests/test_omarchy_recovery.py",
         "destination": "tests/test_omarchy_recovery.py",
-        "sha256": "ffc023177a7b0d9b614a78901bfdc641683c229d0508d6f79d025b67b249010c"
+        "sha256": "73dd8cf4073dc488fa770600bd6e0a942f8a0247f227bf8bbe00b6b610600e7c"
       }
     ]
   },
@@ -467,9 +467,9 @@
     }
   ],
   "validation_artifact": {
-    "filename": "installer-v0.9.2-omarchy.20261022.31425f17fb9b.tar.gz",
-    "size_bytes": 17902703,
-    "sha256": "5fea6b561e6fb82260f573bae099c70ba2e9998df56d38cf285987432320d4b5",
+    "filename": "installer-v0.9.2-omarchy.20261101.85d5ac15bdff.tar.gz",
+    "size_bytes": 17903276,
+    "sha256": "ef81132d96a8dbdb31b9022350b5f76d63989bb39fdb0aa58a5195fb78d5472a",
     "reproducibility_scope": "two-identical-python-overlay-repacks-authenticated-base",
     "signature": "absent",
     "metadata_sha256": "2e6181ce6b6e17c11039e04bfadade8d10ae0e11889885ad8c9960b68f179a5d"

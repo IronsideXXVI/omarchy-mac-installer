@@ -324,12 +324,10 @@ final class LiveInstallerEnvironment: InstallerEnvironment, @unchecked Sendable 
 
     progress(AssetProgressUpdate(stage: .planning, rows: collector.rows()))
 
-    // Existing installs are never replaced or joined: report them and let
-    // the session refuse.
-    let existing = Self.existingInstalls(in: signedInspection.validated)
-    if !existing.isEmpty {
-      return .existingInstallChoice(existing)
-    }
+    // Replacement candidates are never auto-selected. When the inventory also
+    // has a separate free/resize candidate, planning proceeds alongside the
+    // existing installation; replace-only inventories still fail closed in
+    // InstallerAllocationRecommendation.
     let recommendation = try InstallerAllocationRecommendation(
       inventory: inventory,
       targetBytes: omarchyBytes ?? InstallerAllocationRecommendation.balancedTargetBytes,
@@ -657,15 +655,29 @@ final class LiveInstallerEnvironment: InstallerEnvironment, @unchecked Sendable 
     }
   }
 
-  /// Existing Omarchy installs the bundled engine's inventory reports as
-  /// replace candidates. Read at the welcome stage, so the installer can
-  /// refuse before it fetches the catalog or downloads anything.
+  /// Existing Omarchy installs are replace candidates. Keep showing them
+  /// only when no separate free or resizable extent can hold another install;
+  /// a viable separate extent enables multi-install without hiding the
+  /// replace-only safety stop.
   static func existingInstalls(
     in engine: ValidatedEngineTranscript?
   ) -> [ExistingInstallDisplay] {
     guard let inventory = engine?.inventory else {
       return []
     }
+    let canInstallAlongside = inventory.candidates.contains { candidate in
+      switch candidate.kind {
+      case "free":
+        return candidate.lengthBytes >= candidate.minimumInstallBytes
+      case "resize":
+        guard candidate.lengthBytes > candidate.minimumContainerBytes else { return false }
+        return candidate.lengthBytes - candidate.minimumContainerBytes
+          >= candidate.minimumInstallBytes
+      default:
+        return false
+      }
+    }
+    guard !canInstallAlongside else { return [] }
     return inventory.candidates
       .filter { $0.kind == "replace" }
       .map { existing in
