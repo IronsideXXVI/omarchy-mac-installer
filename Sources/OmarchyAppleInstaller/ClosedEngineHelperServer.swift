@@ -203,7 +203,8 @@
       let directory = workingDirectory
       if action == "inspect" {
         let choices = try await Task.detached(operation: {
-          try RecoveryAccountHandoff.discoverAll(in: directory, binding: ticket.isEmpty ? nil : ticket)
+          try RecoveryAccountHandoff.discoverAll(
+            in: directory, binding: ticket.isEmpty ? nil : ticket)
         }).value
         guard !choices.isEmpty else { return RecoveryAccountReply() }
         if choices.count > 1 && ticket.isEmpty {

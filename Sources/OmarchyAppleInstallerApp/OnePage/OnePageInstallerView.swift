@@ -461,19 +461,20 @@ struct OnePageInstallerView: View {
         }
       } else {
         Text(PlainLanguage.existingInstallHeadline)
-        .font(OmarchyTheme.heading)
+          .font(OmarchyTheme.heading)
+          .fixedSize(horizontal: false, vertical: true)
+          .padding(.vertical, 2)
+        Text(
+          "If you’d like to remove Omarchy and return its space to macOS, select Installation → Remove Omarchy from the menu bar."
+        )
+        .font(OmarchyTheme.body)
+        .foregroundStyle(OmarchyTheme.secondaryText)
         .fixedSize(horizontal: false, vertical: true)
-        .padding(.vertical, 2)
-      Text(
-        "If you’d like to remove Omarchy and return its space to macOS, select Installation → Remove Omarchy from the menu bar."
-      )
-      .font(OmarchyTheme.body)
-      .foregroundStyle(OmarchyTheme.secondaryText)
-      .fixedSize(horizontal: false, vertical: true)
         if session.recoveryAccountDeferred {
           Label(
             session.recoveryAccountStarted
-              ? PlainLanguage.recoveryAccountStartedNote : PlainLanguage.recoveryAccountDeferredNote,
+              ? PlainLanguage.recoveryAccountStartedNote
+              : PlainLanguage.recoveryAccountDeferredNote,
             systemImage: "info.circle"
           )
           .omarchyHelpText()

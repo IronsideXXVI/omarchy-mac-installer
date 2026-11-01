@@ -261,7 +261,8 @@
             recoveryAccount = nil
           }
         }
-        let recoveryNeedsAction = !recoveryAccountChoices.isEmpty
+        let recoveryNeedsAction =
+          !recoveryAccountChoices.isEmpty
           || (recoveryAccount?.target != nil && recoveryAccount?.accountDeferred != false)
         if !host.existingInstalls.isEmpty || recoveryNeedsAction {
           // Replace-only inventories are refused before anything is fetched;
@@ -796,7 +797,9 @@
     /// The helper binds the follow-up ticket to this journal identity and
     /// rechecks the target on every subsequent operation.
     public func chooseRecoveryAccount(binding: String) async throws {
-      guard !isBusy, recoveryAccountChoices.contains(where: { $0.binding == binding }) else { return }
+      guard !isBusy, recoveryAccountChoices.contains(where: { $0.binding == binding }) else {
+        return
+      }
       isBusy = true
       defer { isBusy = false }
       guard let reply = try await environment.inspectRecoveryAccount(binding: binding),

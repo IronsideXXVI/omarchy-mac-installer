@@ -587,7 +587,8 @@
   }
 
   extension InstallerEnvironment {
-    public func inspectRecoveryAccount(binding: String? = nil) async throws -> RecoveryAccountReply? { nil }
+    public func inspectRecoveryAccount(binding: String? = nil) async throws -> RecoveryAccountReply?
+    { nil }
     public func prepareRecoveryHandoff(ticket: String) async throws -> RecoveryAccountReply {
       throw AccountSetupFailure("Recovery handoff is unavailable in this environment.")
     }
