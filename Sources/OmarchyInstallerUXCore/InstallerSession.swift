@@ -263,7 +263,7 @@
         }
         let recoveryNeedsAction =
           !recoveryAccountChoices.isEmpty
-          || (recoveryAccount?.target != nil && recoveryAccount?.accountDeferred != false)
+          || (recoveryAccount?.target != nil && recoveryAccount?.accountDeferred == true)
         if !host.existingInstalls.isEmpty || recoveryNeedsAction {
           // Replace-only inventories are refused before anything is fetched;
           // inventories with separate space omit this list and continue.
