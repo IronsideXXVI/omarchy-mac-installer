@@ -155,7 +155,7 @@ class InspectionTest(unittest.TestCase):
     def test_an_authenticated_macho_bundle_cannot_be_partial(self):
         self.setUp()
         (self.root / "boot/efi/macho/aura-stage2.pkg").unlink()
-        self.assertFails("installed-boot-payloads", "authenticated Mach-O bundle is incomplete")
+        self.assertFails("installed-boot-payloads", "does not match the authenticated Mach-O")
 
     def test_speakerguardd_starts_only_for_the_j700_and_speakersafetyd_skips_it(self):
         self.assertIn("starts only for AppleJ700", self.inspect()["checks"]["speaker-routing"]["detail"])
