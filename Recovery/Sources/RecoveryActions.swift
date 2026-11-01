@@ -795,10 +795,12 @@ extension RecoveryActions {
         let baselineNV = try asset("macho/nv-config", manifest: m)
         let off = Data("x1n1.nv2=0\n".utf8)
         let on = Data("x1n1.nv2=1\n".utf8)
-        check(baselineNV == off || baselineNV == on,
-              "The recovery NV configuration is invalid.")
+        try check(
+          baselineNV == off || baselineNV == on,
+          "The recovery NV configuration is invalid.")
         let nvTarget = try RecoveryBaseline.path(nvPath, beneath: destination)
-        let current = FileManager.default.fileExists(atPath: nvTarget.path)
+        let current =
+          FileManager.default.fileExists(atPath: nvTarget.path)
           ? try RecoveryBaseline.read(nvTarget, maximum: 4096)
           : nil
         if current != off && current != on {

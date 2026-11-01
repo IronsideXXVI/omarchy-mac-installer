@@ -115,13 +115,16 @@ enum RecoveryBaseline {
     write: (Data, URL) throws -> Void
   ) throws {
     let required = Set([startupStage2Path] + vendorPaths)
-    let allowedAuxiliary = startupAuxiliaryPaths
+    let allowedAuxiliary =
+      startupAuxiliaryPaths
       .filter { !$0.isEmpty && !$0.contains("\0") }
-    guard allowedAuxiliary.allSatisfy({
-      $0.split(separator: "/", omittingEmptySubsequences: false).allSatisfy {
-        !$0.isEmpty && $0 != "." && $0 != ".."
-      }
-    }) else {
+    guard
+      allowedAuxiliary.allSatisfy({
+        $0.split(separator: "/", omittingEmptySubsequences: false).allSatisfy {
+          !$0.isEmpty && $0 != "." && $0 != ".."
+        }
+      })
+    else {
       throw RecoveryBaselineFailure(message: "Invalid recovery auxiliary file path.")
     }
     let names = files.keys.sorted()
