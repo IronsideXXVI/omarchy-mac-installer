@@ -19,6 +19,7 @@ enum RecoveryBaseline {
 
   static func limit(_ name: String) -> Int {
     if name == "vendorfw/manifest.txt" { return 1 << 20 }
+    if name == "macho/nv-config" || name == "m1n1/nv-config" { return 4096 }
     return name == optionalVendorPath ? 16 << 20 : 256 << 20
   }
 
