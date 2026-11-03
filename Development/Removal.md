@@ -51,7 +51,8 @@ Install journals are named by the plan's binding digest, and removal restores th
 ## Verification and simulator
 
 In a debug `--simulate` run, choose the same menu action and use **Removal test**
-inside the popup. Cases: complete removal, no installation, unfamiliar/partial
+inside the popup. Cases: complete removal, removal service needs setup (the first
+Continue fails, the next goes on), removed with the reply lost, no installation, unfamiliar/partial
 layout, helper unavailable, incorrect password, changed disk, deletion
 interrupted, macOS resize failed and connection lost. The exact phrase is still
 required. Simulation uses no helper, disks, passwords or downloads. A simulation
