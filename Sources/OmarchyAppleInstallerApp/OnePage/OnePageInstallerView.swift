@@ -702,7 +702,7 @@ private struct PrefetchStrip: View {
               Button(PlainLanguage.prefetchRetry, action: onRetry)
             }
           } else {
-            ProgressTrack(fraction: fraction, height: 10)
+            ProgressTrack(fraction: fraction, height: 18)
           }
         }
         .padding(.vertical, 2)
