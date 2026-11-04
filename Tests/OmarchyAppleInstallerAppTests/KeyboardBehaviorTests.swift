@@ -118,22 +118,15 @@
       type("test")
       XCTAssertTrue(press("\r", modifiers: .command, in: window))
       settle(1.4)
-      XCTAssertEqual(focusedField(), "Confirmation phrase")
-      XCTAssertFalse(
-        press("\r", modifiers: .command, in: window), "Remove stays off until the phrase is typed")
-
-      pressTab(in: window)
+      // The account just typed also approves the removal, so nothing is empty.
+      window.makeFirstResponder(window.contentView)
+      window.selectKeyView(following: window.contentView!)
       settle(0.2)
       XCTAssertEqual(focusedField(), "Account name")
       pressTab(in: window)
       settle(0.2)
       XCTAssertEqual(focusedField(), "macOS password")
 
-      window.makeFirstResponder(window.contentView)
-      window.selectKeyView(following: window.contentView!)
-      settle(0.2)
-      XCTAssertEqual(focusedField(), "Confirmation phrase")
-      type(RemovalPreviewScenario.accountFirst.previewTicket.0.confirmation)
       XCTAssertFalse(press("\r", modifiers: [], in: window), "Return must not remove")
       XCTAssertTrue(press("\r", modifiers: .command, in: window))
       settle(2.6)
@@ -144,16 +137,15 @@
       XCTAssertEqual(closes, 1)
     }
 
-    func testRemovalConfirmationStepFocusesThePhraseField() {
+    func testRemovalReviewFocusesThePasswordField() {
       let window = host(
-        OmarchyRemovalSheet(
-          isSimulation: true, onBusyChanged: { _ in }, onClose: {}, onRequiresReview: {},
-          simulationScenario: RemovalPreviewScenario.success.rawValue))
-      settle(1.0)
+        OmarchyRemovalSheet(previewScenario: .success, heightCap: 756, showsAccountFields: true))
+      settle(0.5)
       let editor = window.firstResponder as? NSTextView
-      XCTAssertNotNil(
-        editor?.delegate as? NSTextField, "\(String(describing: window.firstResponder))")
-      XCTAssertFalse(editor?.delegate is NSSecureTextField)
+      XCTAssertTrue(
+        editor?.delegate is NSSecureTextField, "\(String(describing: window.firstResponder))")
+      XCTAssertFalse(
+        press("\r", modifiers: .command, in: window), "Remove stays off until the password is typed")
     }
   }
 #endif

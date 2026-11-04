@@ -25,7 +25,7 @@ All simulation controls live in the **Simulation** menu bar item. They are absen
 
 ## Keyboard
 
-Every screen opens with focus on the first field that still needs input: the password when the account name is known, the confirmation phrase on the removal review, and the acknowledgement on the disk plan (Space ticks it). Tab moves between fields; buttons join in only with the macOS Keyboard navigation setting on.
+Every screen opens with focus on the first field that still needs input: the password when the account name is known, on the removal review too, and the acknowledgement on the disk plan (Space ticks it). Tab moves between fields; buttons join in only with the macOS Keyboard navigation setting on.
 
 Command-Return presses a screen's main action, including Remove Omarchy and Shut Down, which Return leaves alone. Escape closes a sheet. On the main window it does what the close button does, and it stands aside while a size is being edited, during an installation or removal, and for a screen with its own Cancel.
 
@@ -78,11 +78,7 @@ Simulation proves presentation and session behavior. It does not prove hardware 
 
 ## Removal
 
-Choose **Installation → Remove Omarchy…** to dry-test removal independently of
-installation. The **Simulation → Removal Scenario** menu selects the removal outcome. Type
-`delete omarchy installation and data` exactly to enable removal. No real password
-is requested in simulation. See [Removal.md](Removal.md) for the supported disk
-layout, recovery behavior and test coverage.
+Choose **Installation → Remove Omarchy…** to dry-test removal independently of installation. The **Simulation → Removal Scenario** menu selects the removal outcome. **Remove Omarchy** is enabled as soon as the plan is shown, since no real password is requested in simulation. See [Removal.md](Removal.md) for the supported disk layout, recovery behavior and test coverage.
 
 The **Disk alignment · whole GB unchanged** scenario reproduces normal 1 MiB
 partition alignment. Selecting 180 GB must keep 180 GB displayed without a
