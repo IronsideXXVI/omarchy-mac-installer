@@ -145,7 +145,8 @@
       XCTAssertTrue(
         editor?.delegate is NSSecureTextField, "\(String(describing: window.firstResponder))")
       XCTAssertFalse(
-        press("\r", modifiers: .command, in: window), "Remove stays off until the password is typed")
+        press("\r", modifiers: .command, in: window), "Remove stays off until the password is typed"
+      )
     }
   }
 #endif
